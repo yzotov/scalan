@@ -187,6 +187,16 @@ class BoilerplateTool extends StrictLogging {
     metaTestTypeSynonyms
   )
 
+  val sslistsTypeSynonyms = Map.empty[String,String]
+  lazy val sslistsConfig = CodegenConfig(
+    name = "sslists",
+    srcPath = "../library/src/main/scala",
+    entityFiles = List(
+      "scalan/collections/SSLists.scala"
+    ),
+    sslistsTypeSynonyms
+  )
+
   def getConfigs(args: Array[String]): Seq[CodegenConfig] =
     args.flatMap { arg => configsMap.getOrElse(arg,
       sys.error(s"Unknown codegen config $arg. Allowed values: ${configsMap.keySet.mkString(", ")}"))
@@ -204,6 +214,7 @@ class BoilerplateTool extends StrictLogging {
     "ee" -> List(eeConfig),
     "effects" -> List(effectsConfig),
     "effects2" -> List(effects2Config),
+    "sslists" -> List(sslistsConfig),
     "lib-all" -> List(scalanConfig, coreConfig, coreTestsConfig, libConfig, collectionsConfig, laConfig, graphConfig, metaTestConfig, effects2Config),
     "all" -> List(scalanConfig, coreConfig, coreTestsConfig, libConfig, collectionsConfig, laConfig, graphConfig, metaTestConfig, effects2Config, eeConfig)
   )

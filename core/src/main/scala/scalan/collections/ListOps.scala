@@ -81,7 +81,7 @@ trait ListOps { self: Scalan =>
   }
 
 
-  implicit def listElement[T](implicit eItem: Elem[T]): Elem[List[T]] = new ListElem[T](eItem)
+  implicit def listElement1[T](implicit eItem: Elem[T]): Elem[List[T]] = new ListElem[T](eItem)
   implicit def extendListElement[T](elem: Elem[List[T]]): ListElem[T] = elem.asInstanceOf[ListElem[T]]
 
   //-----------------------------------------------------

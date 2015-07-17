@@ -18,6 +18,7 @@ trait ScalanCommunityDsl extends ScalanCommunity
   with MultiMapsDsl
   with HashSetsDsl
   with SeqsDsl
+  with SSListsDsl
 
 trait ScalanCommunityDslSeq extends ScalanCommunitySeq with ScalanCommunityDsl
   with CollectionsDslSeq
@@ -26,6 +27,7 @@ trait ScalanCommunityDslSeq extends ScalanCommunitySeq with ScalanCommunityDsl
   with MultiMapsDslSeq
   with HashSetsDslSeq
   with SeqsDslSeq
+  with SSListsDslSeq
 
 trait ScalanCommunityDslExp extends ScalanCommunityExp with ScalanCommunityDsl
   with CollectionsDslExp
@@ -34,3 +36,7 @@ trait ScalanCommunityDslExp extends ScalanCommunityExp with ScalanCommunityDsl
   with MultiMapsDslExp
   with HashSetsDslExp
   with SeqsDslExp
+  with SSListsDslExp
+
+trait ScalanCommunityScalaCompiler extends ScalanCommunityDslExp
+  with SeqsScalaMethodMapping

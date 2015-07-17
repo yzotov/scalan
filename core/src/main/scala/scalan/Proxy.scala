@@ -342,7 +342,7 @@ trait ProxyExp extends Proxy with BaseExp with GraphVizExport { self: ScalanExp 
         arrayElement(eItem)
       case ListSym =>
         val eItem = elemFromType(params(0), elemMap, baseType)
-        listElement(eItem)
+        listElement1(eItem)
       case _ if classSymbol.asType.isParameter =>
         getDesc(elemMap, classSymbol, s"Can't create element for abstract type $tpe") match {
           case scala.Left(elem) => elem
