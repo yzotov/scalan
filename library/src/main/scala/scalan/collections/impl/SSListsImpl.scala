@@ -1,11 +1,12 @@
 package scalan.collections
-package impl
 
 import scala.reflect.ClassTag
 import scalan._
 import scalan.common.Default
 import scala.reflect.runtime.universe.{WeakTypeTag, weakTypeTag}
+import scalan.meta.ScalanAst._
 
+package impl {
 // Abs -----------------------------------
 trait SSListsAbs extends SSLists with scalan.Scalan {
   self: ScalanCommunityDsl =>
@@ -45,6 +46,14 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
   // familyElem
   abstract class SSListElem[A, To <: SSList[A]](implicit val eA: Elem[A])
     extends WrapperElem1[A, To, List, SSList]()(eA, container[List], container[SSList]) {
+    lazy val parent: Option[Elem[_]] = None
+    lazy val entityDef: STraitOrClassDef = {
+      val module = getModules("SSLists")
+      module.entities.find(_.name == "SSList").get
+    }
+    lazy val tyArgSubst: Map[String, TypeDesc] = {
+      Map("A" -> Left(eA))
+    }
     override def isEntityType = true
     override lazy val tag = {
       implicit val tagA = eA.tag
@@ -77,9 +86,8 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
     override def toString = "SSList"
   }
   def SSList: Rep[SSListCompanionAbs]
-  implicit def proxySSListCompanion(p: Rep[SSListCompanion]): SSListCompanion = {
+  implicit def proxySSListCompanion(p: Rep[SSListCompanion]): SSListCompanion =
     proxyOps[SSListCompanion](p)
-  }
 
   // default wrapper implementation
   abstract class SSListImpl[A](val wrappedValueOfBaseType: Rep[List[A]])(implicit val eA: Elem[A]) extends SSList[A] {
@@ -89,6 +97,14 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
   class SSListImplElem[A](val iso: Iso[SSListImplData[A], SSListImpl[A]])(implicit eA: Elem[A])
     extends SSListElem[A, SSListImpl[A]]
     with ConcreteElem1[A, SSListImplData[A], SSListImpl[A], SSList] {
+    override lazy val parent: Option[Elem[_]] = Some(sSListElement(element[A]))
+    override lazy val entityDef = {
+      val module = getModules("SSLists")
+      module.concreteSClasses.find(_.name == "SSListImpl").get
+    }
+    override lazy val tyArgSubst: Map[String, TypeDesc] = {
+      Map("A" -> Left(eA))
+    }
     lazy val eTo = this
     override def convertSSList(x: Rep[SSList[A]]) = SSListImpl(x.wrappedValueOfBaseType)
     override def getDefaultRep = super[ConcreteElem1].getDefaultRep
@@ -114,7 +130,7 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
     lazy val eTo = new SSListImplElem[A](this)
   }
   // 4) constructor and deconstructor
-  abstract class SSListImplCompanionAbs extends CompanionBase[SSListImplCompanionAbs] with SSListImplCompanion {
+  abstract class SSListImplCompanionAbs extends CompanionBase[SSListImplCompanionAbs] {
     override def toString = "SSListImpl"
 
     def apply[A](wrappedValueOfBaseType: Rep[List[A]])(implicit eA: Elem[A]): Rep[SSListImpl[A]] =
@@ -147,6 +163,8 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
   // 6) smart constructor and deconstructor
   def mkSSListImpl[A](wrappedValueOfBaseType: Rep[List[A]])(implicit eA: Elem[A]): Rep[SSListImpl[A]]
   def unmkSSListImpl[A](p: Rep[SSList[A]]): Option[(Rep[List[A]])]
+
+  registerModule(scalan.meta.ScalanCodegen.loadModule(SSLists_Module.dump))
 }
 
 // Seq -----------------------------------
@@ -349,3 +367,11 @@ trait SSListsExp extends SSListsDsl with scalan.ScalanExp {
     case _ => super.rewriteDef(d)
   }
 }
+
+object SSLists_Module {
+  val packageName = "scalan.collections"
+  val name = "SSLists"
+  val dump = "H4sIAAAAAAAAALVWT4wTVRh/nW5b2q4s4IpiWIVNdUVhu2xUYvaA+6eQlS4lO4BaCfo687oMzL/OvOLURCREPcBNiYkkBjnoiZsHjQcPJiZGEhMNERPl4EEPAsYQlRhF/d57M9NO2emuJvYwnTfz5vvz+/2+73vnr6GU66D7XQXr2Bw1CMWjMr+fdGlBLplUo605S23qZIbUT6z9QJkzp1wJDVRR+hB2Z1y9irLipuTZ4b1MGmWUxaZCXGo5LkUby9xDUbF0nShUs8yiZhhNims6KZY1l06UUV/NUlsNdAwlymiVYpmKQyiRp3XsusT1n68gLCItXGf5ulWx2z7MIsui2JHFXgdrFMIHH6vE/nliyy3TMlsGRSv90Co2Cwv2ZDTDthwauMiAuUOWGiz7TAwP0JryYXwUF8HFQlGmjmYuwJd5GytH8ALZDVvY9j4I2CV6fW/L5utkGeVc0gCAZg1b5088GyEEDIzzIEbb+IyG+IwyfAoycTSsay9g9nKPY3ktJH6JJEKeDSY2L2EisEBKplo4eUB55oacNyT2scdCyfAM02Do3hg1cCoAx0/nX3Ov7zy3TUK5Kspp7mTNpQ5WaCflPlp5bJoW5TGHAGJnAdgajmOLe5mEPV2SyCqWYWMTLPlQ9gNPuqZolG1mz/p9dmKgz1CbBFsTnp0I890Qky/XzTTW9T1X1m2572rpKQlJURdZMCmD8J3AKEVpWWZg+8bZdYCixCRHmF2yXvua6eE8hGHkyk/qJ2PogBSC5/taHl9gIuV+/VX+4qbtElpR5ereoeOFKuDnlnRiVJxpy6RVtMI6ShzxJnMU6+xuUf4yKqnjpk59VDvhSAIcFG2IrUObMKwmuOYTAQB5IdvdlkkKO/YUfpM/O32eqdJB/eKNKMy/tG03v1lZp1ywFK193sG2TdT9WG+SSn0Ku4RRHQCehAqPUtC3bFZ8bthliG+9o+OzuxJB6Pw9RRKZDF0wOJd0QVFOSCToAUMhkUNxQuTCXTtfHtSvbf9IQqknUKoO/LhllKpZTVMNKgK6JiUenQqeJaL8QAVgBxuBgET/2IB4EGGcg7dEvKTQggb7a3VM+mXdpbMSyoKeaho1sF0YW2Zb+B9LHUVJybOdT3L9iIjS7DIcvP43FdwBzpZe4ECR8WIM09YKmx/7Yeb0Lt5SBtpw8G1+Vp3FTtFtrEyxZhInSLQjGlZIOVEusmWQ1cPXtYPnTlHeMxJedFxVaodhPkzw79Zz+490AdRf8qYDBrZGX/ngLN7O2nUB8Q6IndOdVAqV2ey6OlxvbVt4NCrFDEUZnwxIwce3Pd8EUDOQ+nAM9rIvC9DmsRtv7X7w8/e+54DnmMCg4ZjhlG+ryetqHGuEPcjDaJpwdoDp3ZE9VD3TXhjJA7GRNFi9EwN8cqJPoP3nZ8bfNjhFA8QT+p7rOGt0dPi4ISG2Q3aXn2403h97aCUfyV2NHSb0rF8+fFGBPu9oKlm0DPOgOdmHt7syu7p9jg0M3cLqbNB/ImVXRmlYzouWLM45bWJDvNbHZDalW8qRfVt+rDcGH74p5q4G6AchQZVQiobiJo0/ZoLKiHMC+Lj07rnBL2q7Fk6KWlHYNyV+nrpT1JPThCOjQUanLI+o+yAG+u6LO4euXjjjT6J0gQVWiCpX9PQD4ZgLiNzYk0iG3aaPR9442PzwVPy47y0GsJH89u8LrztuUkKZ5cz7/zLl2e26KKcwCxP1Reavg+6JH2s7mqZycfbN2weGnv2Os5xWLQOaHLcP082BhhU462rF4XKqV2fupbFJ29ZbL9c3nf3yzJ8vSSzNFMM7gCBZb/I4nisjiXax0L62Ik/inc2qUPkja9754+fspYrU3XLYnxkJPv40AE0NCjR/WSPk8d9fEbUB/cPxY03R7lZ2PPa4BETBiF584B+/5aDC97zalrdIejxyjBAv/LNQ0CIjFPm03CqUnuM3juR/APMQw7rBDgAA"
+}
+}
+
