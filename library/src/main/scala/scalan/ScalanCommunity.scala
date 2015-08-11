@@ -40,3 +40,4 @@ trait ScalanCommunityDslExp extends ScalanCommunityExp with ScalanCommunityDsl
 
 trait ScalanCommunityScalaCompiler extends ScalanCommunityDslExp
   with SeqsScalaMethodMapping
+  with SSListsScalaMethodMapping
