@@ -25,6 +25,11 @@ abstract class CommunitySmokeItTests extends SmokeItTests {
       Collection.singleton(1)
     }
 
+    lazy val sslistsFromArray = fun { arr: Rep[Array[Int]] => SSList(arr).wrappedValueOfBaseType }
+
+    lazy val sslistsMap = fun { arr: Rep[Array[Int]] => SSList(arr).map({a: Rep[Int] => a * 100}).wrappedValueOfBaseType }
+    lazy val listsMap = fun { arr: Rep[Array[Int]] => (SList.tabulate(arr.length)({i: Rep[Int] =>arr(i)})).map({a: Rep[Int] => a * 100}) }
+
     lazy val seqsEmpty = fun {ignore: Rep[Int] => SSeq.empty[Int].wrappedValueOfBaseType}
 
     lazy val seqsSingle = fun {v:Rep[Int] => SSeq.single(v).wrappedValueOfBaseType}
