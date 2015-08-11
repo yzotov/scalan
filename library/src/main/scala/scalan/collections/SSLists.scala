@@ -14,7 +14,7 @@ trait SSLists extends Base with TypeWrappers with scalan.Scalan { self: ScalanCo
     def wrappedValueOfBaseType: Rep[List[A]]
 
 //    def map[B: Elem](f: Rep[A => B]): Rep[SSList[B]]
-    def map[B:Elem](f: Rep[A => B]): Rep[SSList[B]] =
+    def map[B: Elem](f: Rep[A => B]): Rep[SSList[B]] =
       methodCallEx[SSList[B]](self,
         this.getClass.getMethod("map", classOf[AnyRef], classOf[Elem[B]]),
         List(f.asInstanceOf[AnyRef], element[B]))
@@ -22,6 +22,7 @@ trait SSLists extends Base with TypeWrappers with scalan.Scalan { self: ScalanCo
 
   trait SSListCompanion extends ExCompanion1[SSList] {
     @External def empty[A:Elem]: Rep[SSList[A]]
+    @External def apply[A: Elem](@ArgList xs: Rep[Array[A]]): Rep[SSList[A]]
   }
 
   def DefaultOfList[A: Elem]: Default[List[A]] = Default.defaultVal(List.empty[A])
@@ -41,8 +42,4 @@ trait SSListsDslSeq extends impl.SSListsSeq { self: ScalanCommunityDslSeq =>
   }
 }
 
-trait SSListsDslExp extends impl.SSListsExp { self1: ScalanCommunityDslExp =>
-  trait ExpSSList[A] extends SSListImpl[A] {
-
-  }
-}
+trait SSListsDslExp extends impl.SSListsExp { self1: ScalanCommunityDslExp => }

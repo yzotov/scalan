@@ -174,6 +174,9 @@ trait SSListsSeq extends SSListsDsl with scalan.ScalanSeq {
     lazy val selfType = element[SSListCompanionAbs]
     override def empty[A:Elem]: Rep[SSList[A]] =
       SSListImpl(List.empty[A])
+
+    override def apply[A:Elem](xs: Rep[Array[A]]): Rep[SSList[A]] =
+      SSListImpl(List.apply[A](xs: _*))
   }
 
     // override proxy if we deal with TypeWrapper
@@ -218,6 +221,11 @@ trait SSListsExp extends SSListsDsl with scalan.ScalanExp {
       methodCallEx[SSList[A]](self,
         this.getClass.getMethod("empty", classOf[Elem[A]]),
         List(element[A]))
+
+    def apply[A:Elem](xs: Rep[Array[A]]): Rep[SSList[A]] =
+      methodCallEx[SSList[A]](self,
+        this.getClass.getMethod("apply", classOf[AnyRef], classOf[Elem[A]]),
+        List(xs.asInstanceOf[AnyRef], element[A]))
   }
 
   case class ViewSSList[A, B](source: Rep[SSList[A]])(iso: Iso1[A, B, SSList])
@@ -294,6 +302,18 @@ trait SSListsExp extends SSListsDsl with scalan.ScalanExp {
         case _ => None
       }
       def unapply(exp: Exp[_]): Option[Unit forSome {type A}] = exp match {
+        case Def(d) => unapply(d)
+        case _ => None
+      }
+    }
+
+    object apply {
+      def unapply(d: Def[_]): Option[Rep[Array[A]] forSome {type A}] = d match {
+        case MethodCall(receiver, method, Seq(xs, _*), _) if receiver.elem == SSListCompanionElem && method.getName == "apply" =>
+          Some(xs).asInstanceOf[Option[Rep[Array[A]] forSome {type A}]]
+        case _ => None
+      }
+      def unapply(exp: Exp[_]): Option[Rep[Array[A]] forSome {type A}] = exp match {
         case Def(d) => unapply(d)
         case _ => None
       }
