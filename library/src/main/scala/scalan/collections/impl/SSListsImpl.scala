@@ -91,6 +91,15 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
 
   // default wrapper implementation
   abstract class SSListImpl[A](val wrappedValueOfBaseType: Rep[List[A]])(implicit val eA: Elem[A]) extends SSList[A] {
+    def length: Rep[Int] =
+      methodCallEx[Int](self,
+        this.getClass.getMethod("length"),
+        List())
+
+    def toArray: Rep[Array[A]] =
+      methodCallEx[Array[A]](self,
+        this.getClass.getMethod("toArray"),
+        List())
   }
   trait SSListImplCompanion
   // elem for concrete class
@@ -193,6 +202,11 @@ trait SSListsSeq extends SSListsDsl with scalan.ScalanSeq {
     extends SSListImpl[A](wrappedValueOfBaseType)
        with SeqSSList[A] with UserTypeSeq[SSListImpl[A]] {
     lazy val selfType = element[SSListImpl[A]]
+    override def length: Rep[Int] =
+      wrappedValueOfBaseType.length
+
+    override def toArray: Rep[Array[A]] =
+      wrappedValueOfBaseType.toArray
   }
   lazy val SSListImpl = new SSListImplCompanionAbs with UserTypeSeq[SSListImplCompanionAbs] {
     lazy val selfType = element[SSListImplCompanionAbs]
@@ -272,6 +286,30 @@ trait SSListsExp extends SSListsDsl with scalan.ScalanExp {
     object wrappedValueOfBaseType {
       def unapply(d: Def[_]): Option[Rep[SSList[A]] forSome {type A}] = d match {
         case MethodCall(receiver, method, _, _) if receiver.elem.isInstanceOf[SSListElem[_, _]] && method.getName == "wrappedValueOfBaseType" =>
+          Some(receiver).asInstanceOf[Option[Rep[SSList[A]] forSome {type A}]]
+        case _ => None
+      }
+      def unapply(exp: Exp[_]): Option[Rep[SSList[A]] forSome {type A}] = exp match {
+        case Def(d) => unapply(d)
+        case _ => None
+      }
+    }
+
+    object length {
+      def unapply(d: Def[_]): Option[Rep[SSList[A]] forSome {type A}] = d match {
+        case MethodCall(receiver, method, _, _) if receiver.elem.isInstanceOf[SSListElem[_, _]] && method.getName == "length" =>
+          Some(receiver).asInstanceOf[Option[Rep[SSList[A]] forSome {type A}]]
+        case _ => None
+      }
+      def unapply(exp: Exp[_]): Option[Rep[SSList[A]] forSome {type A}] = exp match {
+        case Def(d) => unapply(d)
+        case _ => None
+      }
+    }
+
+    object toArray {
+      def unapply(d: Def[_]): Option[Rep[SSList[A]] forSome {type A}] = d match {
+        case MethodCall(receiver, method, _, _) if receiver.elem.isInstanceOf[SSListElem[_, _]] && method.getName == "toArray" =>
           Some(receiver).asInstanceOf[Option[Rep[SSList[A]] forSome {type A}]]
         case _ => None
       }
