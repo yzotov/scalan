@@ -52,21 +52,21 @@ class LmsCommunityItTests extends CommunitySmokeItTests {
 
   test("sslistsDummy") {
     val in = Array(2, 3)
-    compareOutputWithSequential(progStaged)(progSeq.sslistsDummy, progStaged.sslistsDummy, "sslistsDummy", in)
+    compareOutputWithSequential(progStaged)(progSeq.sslistsDummy, progStaged.scalan.sslistsDummy, "sslistsDummy", in)
   }
 
   test("sslistsFromArray") {
     val in = Array(2, 3)
-    compareOutputWithSequential(progStaged)(progSeq.sslistsFromArray, progStaged.sslistsFromArray, "sslistsFromArray", in)
+    compareOutputWithSequential(progStaged)(progSeq.sslistsFromArray, progStaged.scalan.sslistsFromArray, "sslistsFromArray", in)
   }
 
   test("sslistsMap") {
     val in = Array(2, 3)
-    compareOutputWithSequential(progStaged)(progSeq.sslistsMap, progStaged.sslistsMap, "sslistsMap", in)
+    compareOutputWithSequential(progStaged)(progSeq.sslistsMap, progStaged.scalan.sslistsMap, "sslistsMap", in)
   }
 
   test("listsMap") {
     val in = Array(2, 3)
-    compareOutputWithSequential(progStaged)(progSeq.listsMap, progStaged.listsMap, "listsMap", in)
+    compareOutputWithSequential(progStaged)(progSeq.listsMap, progStaged.scalan.listsMap, "listsMap", in)
   }
 }

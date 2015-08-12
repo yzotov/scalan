@@ -37,7 +37,3 @@ trait ScalanCommunityDslExp extends ScalanCommunityExp with ScalanCommunityDsl
   with HashSetsDslExp
   with SeqsDslExp
   with SSListsDslExp
-
-trait ScalanCommunityScalaCompiler extends ScalanCommunityDslExp
-  with SeqsScalaMethodMapping
-  with SSListsScalaMethodMapping
