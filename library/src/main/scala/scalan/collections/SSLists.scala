@@ -7,7 +7,7 @@ import scalan.common.Default
 trait SSLists extends Base with TypeWrappers with scalan.Scalan { self: ScalanCommunityDsl =>
   type RepSSList[A] = Rep[SSList[A]]
 
-  @ContainerType
+  @ContainerType @FunctorType
   trait SSList[A] extends TypeWrapper[List[A],SSList[A]] { self =>
     implicit def eA: Elem[A]
 
@@ -15,12 +15,7 @@ trait SSLists extends Base with TypeWrappers with scalan.Scalan { self: ScalanCo
 
     @External def length: Rep[Int]
     @External def toArray: Rep[Array[A]]
-
-//    def map[B: Elem](f: Rep[A => B]): Rep[SSList[B]]
-    def map[B: Elem](f: Rep[A => B]): Rep[SSList[B]] =
-      methodCallEx[SSList[B]](self,
-        this.getClass.getMethod("map", classOf[AnyRef], classOf[Elem[B]]),
-        List(f.asInstanceOf[AnyRef], element[B]))
+    @External(methodName = "map") def map[B: Elem](f: Rep[A => B]): Rep[SSList[B]]
   }
 
   trait SSListCompanion extends ExCompanion1[SSList] {
