@@ -13,6 +13,9 @@ trait SSLists extends Base with TypeWrappers with scalan.Scalan { self: ScalanCo
 
     def wrappedValueOfBaseType: Rep[List[A]]
 
+    @External def head: Rep[A]
+    @External def tail: Rep[SSList[A]]
+    @External def apply(i: Rep[Int]): Rep[A]
     @External def length: Rep[Int]
     @External def toArray: Rep[Array[A]]
     @External(methodName = "map") def map[B: Elem](f: Rep[A => B]): Rep[SSList[B]]

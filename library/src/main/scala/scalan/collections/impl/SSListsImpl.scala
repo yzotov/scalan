@@ -92,6 +92,21 @@ trait SSListsAbs extends SSLists with scalan.Scalan {
 
   // default wrapper implementation
   abstract class SSListImpl[A](val wrappedValueOfBaseType: Rep[List[A]])(implicit val eA: Elem[A]) extends SSList[A] {
+    def head: Rep[A] =
+      methodCallEx[A](self,
+        this.getClass.getMethod("head"),
+        List())
+
+    def tail: Rep[SSList[A]] =
+      methodCallEx[SSList[A]](self,
+        this.getClass.getMethod("tail"),
+        List())
+
+    def apply(i: Rep[Int]): Rep[A] =
+      methodCallEx[A](self,
+        this.getClass.getMethod("apply", classOf[AnyRef]),
+        List(i.asInstanceOf[AnyRef]))
+
     def length: Rep[Int] =
       methodCallEx[Int](self,
         this.getClass.getMethod("length"),
@@ -208,6 +223,15 @@ trait SSListsSeq extends SSListsDsl with scalan.ScalanSeq {
     extends SSListImpl[A](wrappedValueOfBaseType)
        with SeqSSList[A] with UserTypeSeq[SSListImpl[A]] {
     lazy val selfType = element[SSListImpl[A]]
+    override def head: Rep[A] =
+      wrappedValueOfBaseType.head
+
+    override def tail: Rep[SSList[A]] =
+      SSListImpl(wrappedValueOfBaseType.tail)
+
+    override def apply(i: Rep[Int]): Rep[A] =
+      wrappedValueOfBaseType.apply(i)
+
     override def length: Rep[Int] =
       wrappedValueOfBaseType.length
 
@@ -296,6 +320,42 @@ trait SSListsExp extends SSListsDsl with scalan.ScalanExp {
         case _ => None
       }
       def unapply(exp: Exp[_]): Option[Rep[SSList[A]] forSome {type A}] = exp match {
+        case Def(d) => unapply(d)
+        case _ => None
+      }
+    }
+
+    object head {
+      def unapply(d: Def[_]): Option[Rep[SSList[A]] forSome {type A}] = d match {
+        case MethodCall(receiver, method, _, _) if receiver.elem.isInstanceOf[SSListElem[_, _]] && method.getName == "head" =>
+          Some(receiver).asInstanceOf[Option[Rep[SSList[A]] forSome {type A}]]
+        case _ => None
+      }
+      def unapply(exp: Exp[_]): Option[Rep[SSList[A]] forSome {type A}] = exp match {
+        case Def(d) => unapply(d)
+        case _ => None
+      }
+    }
+
+    object tail {
+      def unapply(d: Def[_]): Option[Rep[SSList[A]] forSome {type A}] = d match {
+        case MethodCall(receiver, method, _, _) if receiver.elem.isInstanceOf[SSListElem[_, _]] && method.getName == "tail" =>
+          Some(receiver).asInstanceOf[Option[Rep[SSList[A]] forSome {type A}]]
+        case _ => None
+      }
+      def unapply(exp: Exp[_]): Option[Rep[SSList[A]] forSome {type A}] = exp match {
+        case Def(d) => unapply(d)
+        case _ => None
+      }
+    }
+
+    object apply {
+      def unapply(d: Def[_]): Option[(Rep[SSList[A]], Rep[Int]) forSome {type A}] = d match {
+        case MethodCall(receiver, method, Seq(i, _*), _) if receiver.elem.isInstanceOf[SSListElem[_, _]] && method.getName == "apply" =>
+          Some((receiver, i)).asInstanceOf[Option[(Rep[SSList[A]], Rep[Int]) forSome {type A}]]
+        case _ => None
+      }
+      def unapply(exp: Exp[_]): Option[(Rep[SSList[A]], Rep[Int]) forSome {type A}] = exp match {
         case Def(d) => unapply(d)
         case _ => None
       }
